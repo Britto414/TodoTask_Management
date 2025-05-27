@@ -34,7 +34,7 @@ const LoginUser = asyncHandler(async(req , res)=>{
 
 const RegisterUser = asyncHandler(async (req, res) => {
     const {user ,  email, password } = req.body;
-    // console.log(email, password);
+    console.log(email, password);
 
     if (!user || !email || !password) {
         res.status(404)
@@ -44,7 +44,7 @@ const RegisterUser = asyncHandler(async (req, res) => {
     try {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: "Email already exists" }); 
+            return res.status(409).json({ message: "Email already exists" }); 
         }
 
         // Hash password before storing

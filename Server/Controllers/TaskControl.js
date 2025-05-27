@@ -12,17 +12,15 @@ const getTasks = asyncHandler(async(req, res) => {
     
     const tasks = await Task.find({ user_id: req.user.id });
     
-    if (tasks.length === 0) {
-        return res.status(200).json({Message:"No task Found"})
-    }
+    
     res.status(200).json(tasks);
 });
 
  
 const CreateTask = asyncHandler(async(req, res) => {
-    const { title , description , dueDate , status } = req.body;
+    const { title , description , dueDate  } = req.body;
 
-    if (!title || !description || !dueDate || !status) {
+    if (!title || !description || !dueDate ) {
         res.status(404);
         throw new Error("All fields are required");
     }
@@ -31,8 +29,7 @@ const CreateTask = asyncHandler(async(req, res) => {
         user_id: req.user.id, 
         title , 
         description , 
-        dueDate , 
-        status
+        dueDate 
     });
 
     res.status(201).json({
@@ -77,9 +74,29 @@ const UpdateTask =asyncHandler(async(req,res)=>{
     res.status(201).json({message: "Task Updated",updated});
 })
 
+const checkTask = asyncHandler(async(req , res)=>{
+    const task = await Task.findById(req.params.id);
+    console.log("hi");
+    
+    if (task && task.user_id.toString() !== req.user.id) {
+        res.status(403);
+        throw new Error("Unauthorized User");
+    }
+    
+    const status = task.status;
+
+    if(status==="Open") task.status = "Complete";
+    else task.status = "Open"
+    const updated = await task.save();
+    
+    res.status(200).json({message: "Task Updated",updated});
+
+})
+
 module.exports = {
     UpdateTask,
     DeleteTask,
     CreateTask,
-    getTasks
+    getTasks , 
+    checkTask
 }

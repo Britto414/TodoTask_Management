@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import dayjs from "dayjs";
 
-const AddTask = (props) => {
-  const [task, setTask] = useState({
-    title: "",
-    description: "",
-    dueDate: "",
-  });
+const EditTask = (props) => {
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const [task, setTask] = useState(location.state.task);
+  
 
   const handleChange = (e) => {
     setTask({ ...task, [e.target.name]: e.target.value });
@@ -15,17 +15,8 @@ const AddTask = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (task.title === "" || task.description === "" || dueDate==="") {
-      alert("Enter the valid info");
-    } else {
-      props.handleAdd(task, navigate);
-      setTask({
-    title: "",
-    description: "",
-    dueDate: "",
-  });
-    }
+    props.handleEdit(task._id , task , navigate);
+    console.log("Task submitted:", task);
     navigate("/home"); // Redirect after submission
   };
 
@@ -34,7 +25,7 @@ const AddTask = (props) => {
       <div className="max-w-4xl mx-auto">
         {/* Header matching Dashboard */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Add New Task</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Update New Task</h1>
           <p className="text-gray-600">Fill in the details below</p>
         </div>
 
@@ -83,7 +74,7 @@ const AddTask = (props) => {
                 type="date"
                 id="dueDate"
                 name="dueDate"
-                value={task.dueDate}
+                value={dayjs(task.dueDate).format("YYYY-MM-DD")}
                 onChange={handleChange}
                 required
                 min={new Date().toISOString().split("T")[0]}
@@ -104,7 +95,7 @@ const AddTask = (props) => {
                 type="submit"
                 className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                Add Task
+                Update Task
               </button>
             </div>
           </form>
@@ -114,4 +105,4 @@ const AddTask = (props) => {
   );
 };
 
-export default AddTask;
+export default EditTask;
