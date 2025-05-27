@@ -6,149 +6,129 @@ import DashBoard from "./Components/DashBoard";
 import AddTask from "./Components/AddTask";
 import EditTask from "./Components/Edit";
 import axios from "./api/axios";
+import PrivateRoute from "./Components/PrivateRoute";
 
 function App() {
   const [tasks, setTask] = useState([]);
+  const [reloadTasks, setReloadTasks] = useState(false); 
 
   const [loginError, setLoginError] = useState("");
   const [registerError, setRegisterError] = useState("");
+  const [searchTerm , setSearchTerm] = useState("");
+  const [searchTermRes , setSearchTermRes] = useState([]);
+
+  const fetchTasks = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const response = await axios.get("/task", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTask(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, [reloadTasks]);
+
+  const handleSearch = (term)=>{
+    const search = term.toLowerCase().trim();
+    setSearchTerm(search);
+
+    if (search !== "") {
+    const filtered = tasks.filter((item) => {
+      return (
+        item.title.toLowerCase().includes(search) ||
+        item.description.includes(search)
+      );
+    });
+    setSearchTermRes(filtered);
+  } else {
+    setSearchTermRes([]);
+  }
+  }
 
   const handeleLogin = async (user, navigate) => {
     try {
       localStorage.removeItem("token");
-
       const res = await axios.post("/user/login", user);
-
       localStorage.setItem("token", res.data.token);
       setLoginError("");
+      setReloadTasks((prev) => !prev); 
       navigate("/home");
     } catch (err) {
-      if (err.response) {
-        setLoginError(err.response.data.message);
-      } else {
-        setLoginError("Something went wrong");
-      }
-      // console.log(loginError);
+      setLoginError(err.response?.data?.message || "Something went wrong");
     }
   };
 
   const handleRegister = async (user, navigate) => {
     try {
-      const res = await axios.post("/user/register", user);
-
-      console.log(res.data);
+      await axios.post("/user/register", user);
       navigate("/");
     } catch (err) {
-      setRegisterError(err.response.data.message);
+      setRegisterError(err.response?.data?.message || "Registration failed");
     }
   };
 
   const handleAdd = async (task, navigate) => {
-    const token = localStorage.getItem("token");
-    const response = await axios.post("/task/", task, {
-      headers: {
-        Authorization: `Bearer ${token}`, // attach JWT token
-      },
-    });
-    const newtask = response.data.task;
-    console.log(newtask);
-
-    setTask([...tasks, newtask]);
-
-    console.log("task added:", response.data);
-    navigate("/home");
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post("/task", task, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReloadTasks((prev) => !prev);
+      navigate("/home");
+    } catch (err) {
+      console.error("Add task error:", err);
+    }
   };
 
   const handleCheckStatus = async (id) => {
-    console.log(id);
-    const token = localStorage.getItem("token");
-    console.log(token);
     try {
-      const res = await axios.put(
-        `/task/check/${id}`, 
-        {}, 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const token = localStorage.getItem("token");
+      const res = await axios.put(`/task/check/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      console.log(res.data);
       setTask((prev) =>
-      prev.map((task) =>
-        task._id === id ? { ...task, status: res.data.updated.status } : task
-      )
-    );
+        prev.map((task) =>
+          task._id === id ? { ...task, status: res.data.updated.status } : task
+        )
+      );
     } catch (err) {
-      console.log(err);
+      console.error("Check status error:", err);
     }
   };
 
-  const handleEdit = async(id , task) => {
-    try{
-      const token  = localStorage.getItem("token");
-      const res = await axios.put(`/task/${id}` , task,{
-        headers: {
-          Authorization: `Bearer ${token}`, // attach JWT token
-        },
-      }
-    );
-    
-    const updated = res.data.updated;
-    const filtered = tasks.filter((item)=> item._id !=id);
-
-    setTask([...filtered , updated]);
-
-    console.log(res);
-
-    }catch(err){
-      console.log(err);
+  const handleEdit = async (id, taskData) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`/task/${id}`, taskData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReloadTasks((prev) => !prev);
+    } catch (err) {
+      console.error("Edit task error:", err);
     }
   };
 
-  const handleDelete = async(id) => {
-    const token = localStorage.getItem("token");
-
-  try {
-    await axios.delete(`/task/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    // Optionally update the local state after successful deletion
-    setTask((task) => task.filter((c) => c._id !== id));
-    console.log("Contact deleted");
-  } catch (error) {
-    console.error("Error deleting task:", error.response?.data?.message || error.message);
-  }
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`/task/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReloadTasks((prev) => !prev);
+    } catch (err) {
+      console.error("Delete task error:", err);
+    }
   };
-
-
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) {
-          const response = await axios.get("http://localhost:5000/api/task", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          const retrievedContacts = response.data;
-          console.log(retrievedContacts);
-
-          if (retrievedContacts) setTask(retrievedContacts);
-        }
-      } catch (error) {
-        console.error("Failed to fetch task:", error);
-      }
-    };
-
-    fetchContacts();
-  }, []);
 
   return (
     <div>
@@ -172,17 +152,34 @@ function App() {
           <Route
             path="/home"
             element={
-              <DashBoard tasks={tasks} 
-                handleCheckStatus={handleCheckStatus}
-                handleDelete={handleDelete}
-                handleEdit={handleEdit}
+              <PrivateRoute>
+                <DashBoard
+                  tasks={searchTerm.length>=1 ? searchTermRes:tasks}
+                  searchTerm={searchTerm}
+                  handleSearch={handleSearch}
+                  handleCheckStatus={handleCheckStatus}
+                  handleDelete={handleDelete}
+                  handleEdit={handleEdit}
                 />
+              </PrivateRoute>
             }
           />
-
-          <Route path="/add" element={<AddTask handleAdd={handleAdd} />} />
-
-          <Route path="/edit" element={<EditTask handleEdit={handleEdit}/>} />
+          <Route
+            path="/add"
+            element={
+              <PrivateRoute>
+                <AddTask handleAdd={handleAdd} />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/edit"
+            element={
+              <PrivateRoute>
+                <EditTask handleEdit={handleEdit} />
+              </PrivateRoute>
+            }
+          />
         </Routes>
       </Router>
     </div>
