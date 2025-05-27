@@ -1,7 +1,8 @@
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import TaskCard from "./TaskCard";
 import { useNavigate, Link } from "react-router-dom";
 import { TbMoodEmpty } from "react-icons/tb";
+import dayjs from "dayjs";
 
 const DashBoard = (props) => {
   const [filter, setFilter] = useState("All");
@@ -12,15 +13,25 @@ const DashBoard = (props) => {
   const pendingTasks = props.tasks.filter((task) => task.status === "Open");
 
   const handleFilter = (status) => {
-  if (status === "Pending") {
-    setFilteredTask(props.tasks.filter(task => task.status === "Open"));
-  } else if(status==="Completed"){
-    setFilteredTask(props.tasks.filter(task => task.status === "Complete"));
-  }else{
-    setFilteredTask(props.tasks);
-  }
-};
+    if (status === "Pending") {
+      setFilteredTask(props.tasks.filter((task) => task.status === "Open"));
+    } else if (status === "Completed") {
+      setFilteredTask(props.tasks.filter((task) => task.status === "Complete"));
+    } else {
+      setFilteredTask(props.tasks);
+    }
+  };
 
+  const groupTasksByDate = (tasks) => {
+  return tasks.reduce((groups, task) => {
+    const date = dayjs(task.dueDate).format("MMMM D, YYYY");
+    if (!groups[date]) groups[date] = [];
+    groups[date].push(task);
+    return groups;
+    }, {});
+  };
+
+  
 
   useEffect(() => {
     setFilteredTask(props.tasks);
@@ -30,9 +41,25 @@ const DashBoard = (props) => {
     <div className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Task Dashboard
-          </h1>
+          <div className="relative flex items-center justify-between mb-6 px-4 py-3">
+            <div className="w-20 invisible"></div>
+
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center mx-auto">
+              Task Dashboard
+            </h1>
+
+            <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/");
+              }}
+              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition
+               text-sm sm:text-base w-22"
+            >
+              Log Out
+            </button>
+          </div>
+
           {pendingTasks.length >= 1 && (
             <p className="text-gray-600">
               {pendingTasks.length}{" "}
@@ -45,8 +72,8 @@ const DashBoard = (props) => {
           <div className="relative flex-grow">
             <input
               type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={props.searchTerm}
+              onChange={(e) => props.handleSearch(e.target.value)}
               placeholder="Search tasks by title or description..."
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
             />
@@ -59,10 +86,13 @@ const DashBoard = (props) => {
           </button>
         </div>
         <div className="flex bg-gray-100 p-1 gap-2 rounded-full w-max">
-          {["All", "Pending", "Completed"].map((status) => (
+          {["All", "Pending", "Completed", "Group by Date"].map((status) => (
             <button
               key={status}
-              onClick={() => {handleFilter(status);setFilter(status);}}
+              onClick={() => {
+                handleFilter(status);
+                setFilter(status);
+              }}
               className={`px-4 py-2 border rounded-full text-sm font-medium transition ${
                 filter === status
                   ? "bg-blue-600 text-white border-blue-600"
@@ -74,7 +104,27 @@ const DashBoard = (props) => {
           ))}
         </div>
 
-        {filteredTask.length > 0 ? (
+        {filter === "Group by Date" ? (
+          Object.entries(groupTasksByDate(filteredTask)).sort(([a], [b]) => new Date(a) - new Date(b)).map(([date, tasks]) => (
+              <div key={date} className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-700 dark:text-black mb-2">
+                   {date}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {tasks.map((task) => (
+                    <TaskCard
+                      key={task._id}
+                      task={task}
+                      onCheck={(id) => props.handleCheckStatus(id)}
+                      onDelete={(id) => props.handleDelete(id)}
+                      onEdit={() => handleEdit()}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
+          )
+        ) : filteredTask.length > 0 ? (
           <div className="grid grid-cols-1 mt-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredTask.map((task) => (
               <div key={task._id}>

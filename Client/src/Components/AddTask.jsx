@@ -16,7 +16,7 @@ const AddTask = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (task.title === "" || task.description === "" || dueDate==="") {
+    if (task.title === "" || dueDate==="") {
       alert("Enter the valid info");
     } else {
       props.handleAdd(task, navigate);
@@ -26,22 +26,22 @@ const AddTask = (props) => {
     dueDate: "",
   });
     }
-    navigate("/home"); // Redirect after submission
+    navigate("/home"); 
   };
 
   return (
     <div className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="max-w-4xl mx-auto">
-        {/* Header matching Dashboard */}
+        
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Add New Task</h1>
           <p className="text-gray-600">Fill in the details below</p>
         </div>
 
-        {/* Form Container */}
+        
         <div className="bg-white rounded-xl shadow-md overflow-hidden max-w-md mx-auto">
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
-            {/* Title Field */}
+            
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
                 Task Title *
@@ -58,7 +58,7 @@ const AddTask = (props) => {
               />
             </div>
 
-            {/* Description Field */}
+            
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                 Description

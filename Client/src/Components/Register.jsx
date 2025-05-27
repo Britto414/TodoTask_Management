@@ -23,7 +23,7 @@ const Register = (props) => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg">
         <h2 className="text-2xl font-semibold text-center mb-6">
-          Login to Your Account
+          Register Your Account
         </h2>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -65,7 +65,7 @@ const Register = (props) => {
           </button>
           <div>
             <p className="text-sm text-center mt-2">
-              Have account ?{" "}
+              Already Have account ?{" "}
               <Link
                 to="/"
                 className="text-blue-600 hover:underline font-medium"

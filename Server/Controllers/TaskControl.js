@@ -20,7 +20,7 @@ const getTasks = asyncHandler(async(req, res) => {
 const CreateTask = asyncHandler(async(req, res) => {
     const { title , description , dueDate  } = req.body;
 
-    if (!title || !description || !dueDate ) {
+    if (!title || !dueDate ) {
         res.status(404);
         throw new Error("All fields are required");
     }
