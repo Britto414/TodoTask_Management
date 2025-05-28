@@ -137,7 +137,7 @@ function App() {
           <Route
             path="/"
             element={
-              <Login handeleLogin={handeleLogin} loginError={loginError} />
+              <Login handeleLogin={handeleLogin} loginError={loginError} setReloadTasks={setReloadTasks}/>
             }
           />
           <Route

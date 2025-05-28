@@ -33,6 +33,7 @@ const Login = (props) => {
         });
 
         localStorage.setItem("token", res.data.token);
+        props.setReloadTasks(true);
         navigate("/home");
       } catch (err) {
         console.error("Google Login failed:", err);

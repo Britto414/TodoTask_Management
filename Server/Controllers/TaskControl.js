@@ -76,7 +76,7 @@ const UpdateTask =asyncHandler(async(req,res)=>{
 
 const checkTask = asyncHandler(async(req , res)=>{
     const task = await Task.findById(req.params.id);
-    console.log("hi");
+    // console.log("hi");
     
     if (task && task.user_id.toString() !== req.user.id) {
         res.status(403);

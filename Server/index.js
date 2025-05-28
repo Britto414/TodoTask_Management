@@ -7,7 +7,7 @@ const routes = require("./Routes/TaskRoute");
 const errorHandle  = require('./Middleware/HandleError')
 require('dotenv').config()
 
-const port =process.env.PORT || '5001';
+const port =process.env.PORT || '10000';
 
 connectDB();
 

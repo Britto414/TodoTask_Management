@@ -37,7 +37,7 @@ const googleLogin = asyncHandler(async (req, res) => {
 
     res.status(200).json({ token });
   } catch (err) {
-    console.error("Google Auth Error:", err);
+    // console.error("Google Auth Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -75,7 +75,7 @@ const LoginUser = asyncHandler(async (req, res) => {
 
 const RegisterUser = asyncHandler(async (req, res) => {
   const { user, email, password } = req.body;
-  console.log(email, password);
+//   console.log(email, password);
 
   if (!user || !email || !password) {
     res.status(404);

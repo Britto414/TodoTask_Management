@@ -16,8 +16,8 @@ const EditTask = (props) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     props.handleEdit(task._id , task , navigate);
-    console.log("Task submitted:", task);
-    navigate("/home"); // Redirect after submission
+    // console.log("Task submitted:", task);
+    navigate("/home"); 
   };
 
   return (
