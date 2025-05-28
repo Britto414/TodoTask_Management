@@ -1,4 +1,4 @@
-const User = require("../models/UserSchema");
+const User = require("../Models/UserSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
