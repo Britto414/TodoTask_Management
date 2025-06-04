@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const TaskCard = ({ task , onCheck , onDelete, onEdit }) => {
+const TaskCard = ({ task , onCheck , onDelete }) => {
   const navigate = useNavigate();
 
   return (

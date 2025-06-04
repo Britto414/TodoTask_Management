@@ -117,7 +117,7 @@ const DashBoard = (props) => {
                       task={task}
                       onCheck={(id) => props.handleCheckStatus(id)}
                       onDelete={(id) => props.handleDelete(id)}
-                      onEdit={() => handleEdit()}
+                      
                     />
                   ))}
                 </div>

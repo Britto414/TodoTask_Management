@@ -33,8 +33,8 @@ function App() {
     }
   };
 
-  useEffect(async() => {
-    await fetchTasks();
+  useEffect(() => {
+    fetchTasks();
   }, [reloadTasks]);
 
   const handleSearch = (term)=>{
